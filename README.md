@@ -17,6 +17,9 @@
 
 8.)Type " npm run dev " , and press enter.
 
-# Data Analysis
-Run feedback.Rmd in r studio
-Run test.py in pycharm or any python executor.
+# Data Analysis .
+1 .) Run feedback.Rmd in r studio .
+2 .) Run test.py in pycharm or any python executor.
+
+# Last-Project-Modified.zip .
+This zip file contains modification with email template and are using local database for database insertion and retrieval .
