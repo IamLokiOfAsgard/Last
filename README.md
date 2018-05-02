@@ -16,3 +16,7 @@
 7.)Do cd .. , so that you're back in the server directory.
 
 8.)Type " npm run dev " , and press enter.
+
+# Data Analysis
+Run feedback.Rmd in r studio
+Run test.py in pycharm or any python executor.
