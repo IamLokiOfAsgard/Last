@@ -1,0 +1,48 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, fig.width = 9, fig.height = 8, fig.align = "center")
+library(mongolite)
+library("viridisLite")
+library(highcharter)
+library(ggplot2) # Data visualization
+library(readr) # CSV file I/O, e.g. the read_csv function
+library(dplyr)
+library(sqldf)
+library(reshape) 
+mongo <- mongo(collection = "customers", db = "mydb1", url = "mongodb://localhost:60000") 
+#mongo <- mongo(collection = "customers", db = "mydb1", url ="mongodb://sunil:sunil@ds163689.mlab.com:63689/mydb1") 
+
+Amazon_Mobile<-mongo$find() 
+```
+
+```{r}
+Review_cnt <- Amazon_Mobile %>% group_by(BrandName) %>% dplyr::summarise(review_counts = n()) 
+Top_Reviews <- Review_cnt %>% filter(review_counts >= 10000 & BrandName != '') %>% arrange(desc(review_counts)) 
+# head(Top_Reviews)
+names(Top_Reviews) <-c("Brand","review_counts")
+
+# ggplot(Top_Reviews , aes(Brand, review_counts)) + geom_bar( stat="identity") + ggtitle("# of review counts by Brand") + theme_bw()
+
+
+hchart(Top_Reviews, hcaes(x = Brand, y = review_counts, color = review_counts), type = "column") %>% 
+  hc_credits(enabled = TRUE, text = "Source : ") %>%
+  hc_add_theme(hc_theme_darkunica())  %>%
+  hc_title(text = "# of review counts by Brand") %>%
+  hc_subtitle(text = "")
+```
+
+```{r}
+
+Brand_Rating <- Amazon_Mobile %>% group_by(BrandName, Rating) %>% dplyr::summarise(review_counts = n()) 
+names(Brand_Rating) <-c("Brand","Rating","review_counts")
+
+Brand_Rating2 <- sqldf("select a.*, b.review_counts Total_counts from Brand_Rating a join Top_Reviews b on (a.Brand = b.Brand) ")
+Brand_Rating2$Positive <- cut(Brand_Rating2$Rating, breaks=c(0,3,6), labels=c("Nagative","Positive"))
+head(Brand_Rating2)
+
+str(Brand_Rating2)
+
+ggplot(Brand_Rating2, aes(Brand , review_counts, fill=factor(Rating))) + geom_bar(stat="identity") + ggtitle("Rating Distribution by Brand") + theme_bw()
+ggplot(Brand_Rating2, aes(Brand , review_counts, fill=factor(Positive))) + geom_bar(stat="identity") + ggtitle("Positive/Nagative Distribution by Brand") + theme_bw()
+ggplot(Brand_Rating2, aes(Brand , review_counts, fill=factor(Positive))) + geom_bar(stat="identity", position='fill') + ggtitle("Positive/Nagative Distribution by Brand") + theme_bw()
+```
+
